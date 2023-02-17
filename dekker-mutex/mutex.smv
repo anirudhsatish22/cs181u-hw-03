@@ -1,0 +1,67 @@
+MODULE p(id, turn, other)
+
+
+VAR
+    pc   : {n1, w2, w3, w4, w5, w6, w7 ,w8, c9, e10};
+    flag : boolean;
+
+ASSIGN
+    init(pc) := n1;
+    init(flag) := FALSE;
+
+    next(pc)    := 
+        case
+            pc = n1 : w2;
+            pc = w2 & (other.flag) : w3;
+            pc = w2 & (!other.flag) : c9;
+
+            pc = w3 & (turn != id)  : w4;
+            pc = w3 & (turn = id)  : w2;
+
+            pc = w4 : w5;
+            pc = w5 & (turn = id) : w6;
+            pc = w5 : w5;
+            pc = w6 : w2;
+            pc = w7 : w2;
+            pc = w8 : w2;
+            pc = c9 : e10;
+            pc = e10 : n1;
+
+        esac;
+    
+    next(turn)  :=
+        case
+            pc = c9 : other.id;
+            TRUE   : turn;
+        esac;
+
+    next(flag)  :=
+        case
+            pc = n1 : TRUE;
+            pc = w4 : FALSE;
+            pc = w6 : TRUE;
+            pc = e10 : FALSE;
+            TRUE    : flag;
+        esac;
+
+FAIRNESS running
+
+
+MODULE main
+
+VAR
+    turn : 0..1;
+    p0 : process p(0, turn, p1);
+    p1 : process p(1, turn, p0);
+
+ASSIGN
+    init(turn) := 0;
+
+LTLSPEC 
+  G(!(p0.pc = c9 & p1.pc = c9))
+
+LTLSPEC 
+  G(p0.pc = w5 -> F(p0.pc = c9)) & G(p1.pc = w5 -> F(p1.pc = c9))
+
+LTLSPEC 
+  G(p0.pc != c9 & p1.pc != c9 -> F(p0.pc = c9 | p0.pc = c9))

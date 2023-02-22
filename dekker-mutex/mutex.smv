@@ -64,4 +64,4 @@ LTLSPEC
   G(p0.pc = w5 -> F(p0.pc = c9)) & G(p1.pc = w5 -> F(p1.pc = c9))
 
 LTLSPEC 
-  G(p0.pc != c9 & p1.pc != c9 -> F(p0.pc = c9 | p0.pc = c9))
+  G(p0.pc != c9 & p1.pc != c9 -> F(p0.pc = c9 | p1.pc = c9))
